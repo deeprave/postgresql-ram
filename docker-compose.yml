@@ -1,0 +1,25 @@
+version: '3.6'
+
+services:
+
+  postgres-ram:
+    build:
+      context: ./postgres-ram
+    image: postgres-ram
+    volumes:
+        - type: tmpfs
+          target: /var/lib/postgresql/data
+          volume:
+            nocopy: true
+          tmpfs:
+            size: 104857600
+    networks:
+        - internal
+    expose:
+        - "5432"
+    ports:
+        - "127.0.0.1:5432:5432"
+
+networks:
+  internal:
+
