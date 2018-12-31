@@ -45,13 +45,13 @@ Snippet from the Django settings module:
 ```python
 import sys
 DATABASES = {
-    'default': {    # postgresql://rjf_web@db/rjf
+    'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'USER': 'username',
         'HOST': os.environ.get('DBHOST', 'localhost'),
         'NAME': os.environ.get('DBNAME', 'defaultdb'),
         'PORT': 5433 if 'test' in sys.argv else 5432,
-        'TEST': {   # sqlite://:memory
+        'TEST': {
             'NAME': os.environ.get('TEST_DBNAME', 'defaultdb_test'),
         }
     }
