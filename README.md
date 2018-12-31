@@ -35,6 +35,48 @@ software actually used in production.
   work with postgresql 9 through 11. Non-official images may work if they provide a similar
   protocol for customising database initialisation.
 
+## Testing with Django
+Running postgresql on tmpfs is useful for testing.
+However Django seems to only allow overriding the database name and none of the other connection
+details for the test database.
+I therefore took the following (hackish) approach to get the django test module to
+use the test database running on port 5433:
+```python
+import sys
+DATABASES = {
+    'default': {    # postgresql://rjf_web@db/rjf
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'USER': 'username',
+        'HOST': os.environ.get('DBHOST', 'localhost'),
+        'NAME': os.environ.get('DBNAME', 'defaultdb'),
+        'PORT': 5433 if 'test' in sys.argv else 5432,
+        'TEST': {   # sqlite://:memory
+            'NAME': os.environ.get('TEST_DBNAME', 'defaultdb_test'),
+        }
+    }
+}
+```
+and changing the ports section for the service in docker-compose.yml as follows:
+```yaml
+  postgres-ram:
+    build:
+      context: ./postgres-ram
+    image: postgres-ram
+    volumes:
+        - type: tmpfs
+          target: /var/lib/postgresql/data
+          volume:
+            nocopy: true
+          tmpfs:
+            size: 104857600
+    networks:
+        - internal
+    expose:
+        - "5432"
+    ports:
+        - "127.0.0.1:5433:5432"
+```
+
 ## Credits
 Many thanks to [Manni Wood's blog article](https://www.manniwood.com/postgresql_94_in_ram/index.html)
 which provided some handy insight into ramdisk-friendly postgresql configuration tweaks.
