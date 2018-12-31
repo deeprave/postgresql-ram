@@ -40,7 +40,8 @@ Running postgresql on tmpfs is useful for testing.
 However Django seems to only allow overriding the database name and none of the other connection
 details for the test database.
 I therefore took the following (hackish) approach to get the django test module to
-use the test database running on port 5433:
+use the test database running on port 5433.
+Snippet from the Django settings module:
 ```python
 import sys
 DATABASES = {
